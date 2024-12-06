@@ -4,43 +4,77 @@ import { MongoClient } from "mongodb";
 const uri = "mongodb://localhost:27017/";
 const client = new MongoClient(uri);
 const database = client.db("pokemon-tcg");
+const https = require("https");
 
 async function getSets() {
-  const sets = await database
-    .collection("cards")
-    .aggregate([
-      { $match: { release_date: { $ne: null } } },
-      { $group: { _id: "$set", date: { $max: "$release_date" } } },
-      { $sort: { date: -1 } },
-      { $project: { _id: 0, set: "$_id" } },
-    ])
-    .toArray();
+  let sets = await database.collection("cards")
+  .aggregate([
+    { $match: { release_date: { $ne: null } } },
+    { 
+      $addFields: { 
+        extractedId: { $arrayElemAt: [{$split: ["$id", "-"]}, 0] }
+      }
+    },
+    { 
+      $group: { 
+        _id: "$extractedId", 
+        set: { $first: "$set" },
+        date: { $max: "$release_date" },
+      }
+    },
+    { $sort: { date: -1, set: 1 } },
+    { 
+      $project: { 
+        _id: 0, 
+        id: "$_id", 
+        set: 1
+      }
+    }
+  ])
+  .toArray();  
   return sets;
 }
 
+async function getSetIdFromCard(cardId: string) {
+  let setId = cardId.split('-')[0];
+  return setId;
+}
+
+async function getSetImage(setId: string) {
+  let url = `https://images.pokemontcg.io/${setId}/logo.png`;
+  return url;
+}
+
 async function getCardsInSet(setName: string) {
-  const cards = await database
+  let cards = await database
     .collection("cards")
     .aggregate([
       { $match: { set: setName } },
       { $project: { _id: 0, id: 1, name: 1, set_num: 1 } },
+      { $sort: { _set_num : 1 } },
     ])
     .toArray();
   return cards;
 }
 
 async function getCardDetails(idCard: string) {
-  const details = await database.collection("cards").findOne({ id: idCard });
+  let details = await database.collection("cards").findOne({ id: idCard });
   return details;
 }
 
+async function getCardImage(idCard: string, cardSetNum: string, large: boolean) {
+  let setId = await getSetIdFromCard(idCard);
+  let url = `https://images.pokemontcg.io/${setId}/${cardSetNum}${large ? "_hires" : ""}.png`;
+  return url;
+}
+
 async function addCard(card: any) {
-  const result = await database.collection("cards").insertOne(card);
+  let result = await database.collection("cards").insertOne(card);
   return result;
 }
 
 async function deleteCard(id: string) {
-  const result = await database.collection("cards").deleteOne({ id });
+  let result = await database.collection("cards").deleteOne({ id });
   return result;
 }
 
@@ -48,8 +82,8 @@ async function deleteCard(id: string) {
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const { searchParams } = url;
-  const setName = searchParams.get("set");
-  const card = searchParams.get("card");
+  let setName = searchParams.get("set");
+  let card = searchParams.get("card");
 
   try {
     if (card) {
@@ -79,4 +113,4 @@ export async function GET(request: Request) {
   }
 }
 
-export { getSets, getCardsInSet, getCardDetails, addCard, deleteCard };
+export { getSets, getCardsInSet, getCardDetails, getCardImage, getSetImage, addCard, deleteCard };

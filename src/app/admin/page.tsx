@@ -11,34 +11,14 @@ export default async function AdminPage() {
                     <input type="text" name="set" placeholder="set" required />
                     <input type="text" name="set_num" placeholder="set_num" required />
                     <input type="text" name="series" placeholder="series" required />
-                    <input type="text" name="publisher" placeholder="publisher" required />
-                    <input type="text" name="generation" placeholder="generation" required />
-                    <input type="text" name="release_date" placeholder="release_date" required />
-                    <input type="text" name="artist" placeholder="artist" required />
                     <input type="text" name="types" placeholder="types" required />
                     <input type="text" name="supertype" placeholder="supertype" required />
-                    <input type="text" name="sybtypes" placeholder="sybtypes" required />
+                    <input type="text" name="subtypes" placeholder="subtypes" required />
                     <input type="text" name="hp" placeholder="hp" required />
-                    <input type="text" name="evolves_to" placeholder="evolves_to" required />
-                    <input type="text" name="attacks" placeholder="attacks" required />
-                    <input type="text" name="weaknesses" placeholder="weaknesses" required />
-                    <input type="text" name="retreatCost" placeholder="retreatCost" required />
                     <input type="text" name="rarity" placeholder="rarity" required />
                     <input type="text" name="flavorText" placeholder="flavorText" required />
-                    <input type="text" name="nationalpokedexNumbers" placeholder="nationalpokedexNumbers" required />
-                    <input type="text" name="legalities" placeholder="legalities" required />
-                    <input type="text" name="regulationMark" placeholder="regulationMark" required />
-                    <input
-                        type="submit"
-                        value="Ajouter la carte"
-                        onSubmit={(event) => {
-                            event.preventDefault();
-                            const form = event.target as HTMLFormElement;
-                            const formData = new FormData(form);
-                            const card = Object.fromEntries(formData);
-                            addCard(card);
-                        }}
-                    />
+                    <input type="text" name="image" placeholder="image" required />
+                    <input type="submit" value="Ajouter la carte" onSubmit={(event) => {}} />
                 </form>
                 <form>
                     <input type="text" name="id" placeholder="id" required />
