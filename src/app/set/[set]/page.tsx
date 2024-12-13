@@ -26,11 +26,7 @@ export default async function SetPage({ params }: { params: { set: string } }) {
 
     return (
         <div className="grid grid-rows-[auto_1fr_auto] items-center justify-items-center min-h-screen p-8 pb-20 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-            <header className="row-start-1 flex gap-1 flex-wrap items-center justify-center mb-2">
-                {" "}
-                {/* Reduced gap and added margin */}
-                <SearchBar />
-            </header>
+            <SearchBar />
             <Link className="fixed top-6 left-6" href="/">
                 &lt; Back
             </Link>

@@ -20,9 +20,7 @@ export default async function Home() {
 
     return (
         <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-            <header className="row-start-1 flex gap-2 flex-wrap items-center justify-center">
-                <SearchBar />
-            </header>
+            <SearchBar />
             <main className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-8 items-center">
                 {sets.map((set: { id: string; set: string }) => (
                     <Link key={set.id} href={`/set/${set.set}`} className="button-class space-y-5">
