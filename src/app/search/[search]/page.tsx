@@ -1,17 +1,18 @@
 import Link from "next/link";
+import SearchBar from "../../searchBar/page";
 
-import SearchBar from "./../../searchBar/page";
-
-export default async function SetPage({ params }: { params: { set: string } }) {
-    // Construct base URL
+export default async function SearchPage({ params }: { params: any }) {
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-    const { set } = await params;
+    const { search } = await params;
+    let cardsResponse;
 
-    // Fetch cards in the set
-    const cardsResponse = await fetch(`${baseURL}/api/cards?action=getCardsInSet&setName=${decodeURIComponent(set)}`);
+    if (!search) {
+        cardsResponse = await fetch(`${baseURL}/api/cards?action=getCards`);
+    } else {
+        cardsResponse = await fetch(`${baseURL}/api/cards?action=getCardsWithName&name=${decodeURIComponent(search)}`);
+    }
     const cards = await cardsResponse.json();
 
-    // Fetch images for all cards
     const images = new Map();
 
     await Promise.allSettled(
@@ -24,21 +25,21 @@ export default async function SetPage({ params }: { params: { set: string } }) {
         })
     );
 
+    const handleSearch = (search: string) => {
+        window.location.href = `/search/${search}`;
+    };
+
     return (
-        <div className="grid grid-rows-[auto_1fr_auto] items-center justify-items-center min-h-screen p-8 pb-20 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-            <header className="row-start-1 flex gap-1 flex-wrap items-center justify-center mb-2">
-                {" "}
-                {/* Reduced gap and added margin */}
-                <SearchBar />
-            </header>
+        <div className="grid grid-rows-[auto_1fr_auto] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+            <SearchBar defaultValue={decodeURIComponent(search)} />
             <Link className="fixed top-6 left-6" href="/">
                 &lt; Back
             </Link>
             <main className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-4 m-4">
                 {cards.map((card: { id: string; name: string; set_num: string; set: string }) => (
-                    <Link key={card.id} href={`/set/${set}/card/${card.id}`} className="button-class">
+                    <Link key={card.id} href={`/set/${params.set}/card/${card.id}`} className="button-class">
                         <img src={images.get(card.id)} alt={card.name} className="rounded-md shadow-md" loading="lazy" />
-                        <p>{`${card.set_num}. ${card.name}`}</p>
+                        <p>{`${card.set} - ${card.set_num}. ${card.name}`}</p>
                     </Link>
                 ))}
             </main>
