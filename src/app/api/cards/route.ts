@@ -5,6 +5,8 @@ const uri = "mongodb://localhost:27017/";
 const client = new MongoClient(uri);
 const database = client.db("pokemon-tcg");
 
+client.connect();
+
 async function getSets() {
   let sets = await database
     .collection("cards")
@@ -62,7 +64,7 @@ async function getCardDetails(idCard: string) {
 }
 
 async function getCardsWithName(name: string) {
-  let cards = await database.collection("cards").find({ name }).toArray();
+  let cards = await database.collection("cards").find({name: new RegExp(name,"i")}).toArray();
   return cards;
 }
 
@@ -86,7 +88,10 @@ async function getCardImage(idCard: string, cardSetNum: string, large: boolean) 
 
 async function addCard(card: any) {
   card.release_date = new Date(card.release_date);
-  let result = await database.collection("cards").insertOne(card);
+  let result = await database.collection("cards").replaceOne(
+    { id: card.id },
+    card,
+    { upsert: true });
   return result;
 }
 
@@ -96,8 +101,8 @@ async function deleteCard(id: string) {
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
   await client.connect();
+  const body = await request.json();
 
   try {
     switch (body.action) {
@@ -117,6 +122,7 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
+  await client.connect();
   const { searchParams } = new URL(request.url);
   const action = searchParams.get("action");
   const setName = searchParams.get("setName");
@@ -167,10 +173,13 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error(error);
     return new Response("Error handling GET request", { status: 500 });
+  }  finally {
+    await client.close();
   }
 }
 
 export async function DELETE(request: Request) {
+  await client.connect();
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
 
@@ -184,5 +193,7 @@ export async function DELETE(request: Request) {
   } catch (error) {
     console.error(error);
     return new Response("Error handling DELETE request", { status: 500 });
+  } finally {
+    await client.close();
   }
 }
