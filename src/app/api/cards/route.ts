@@ -116,8 +116,6 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error(error);
     return new Response("Error handling POST request", { status: 500 });
-  } finally {
-    await client.close();
   }
 }
 
@@ -173,8 +171,6 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error(error);
     return new Response("Error handling GET request", { status: 500 });
-  }  finally {
-    await client.close();
   }
 }
 
@@ -193,7 +189,5 @@ export async function DELETE(request: Request) {
   } catch (error) {
     console.error(error);
     return new Response("Error handling DELETE request", { status: 500 });
-  } finally {
-    await client.close();
   }
 }
